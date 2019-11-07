@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Use bootstrap for some minimal styling-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <title>Project 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--Import d3-->
+  <!--<script src="https://d3js.org/d3.v5.min.js"></script>-->
+  <script src="./d3.v5.min.js"></script>
+  <script src="./topojson.v2.min.js"></script>
+  <style>
+    .grid line {
+      stroke: lightgrey;
+      stroke-opacity: 0.8;
+    }
+    .state , .state_2 {
+      fill: white;
+      stroke: black;
+    }
+
+
+
+    g.x text {
+      font-size: 7.5px;
+    }
+  </style>
+</head>
+
+<body style="background-color: #dddddd;">
+<div class="container">
+  <div class="card mx-auto  my-2" style="width: 900px;">
+    <h4 class="card-header">INFO 3300 - Project 1</h4>
+    <div class="card-body">
+      <p>Project by:</p>
+      <ul>
+        <li>By SM Mashuque, (sm2344)</li>
+        <li>By Joe Mo, (jjm492)</li>
+        <li>By Dana Luong, (dl697)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card mx-auto  my-2" style="width: 900px;">
+    <h4 class="card-header">Graph 1.1: Heat-map of the Education Budget in 2016</h4>
+    <div class="card-body">
+      <h5>Education Expenditure Across all the States in America for the year 2016.</h5>
+      <div id="p1_div_for_svg_2">
+      </div>
+      <div id="p1_div_for_legend_2">
+      </div>
+      <br>
+      <p>
+        Lighter colors indicate lower spending and darker colors indicate higher spending.
+      </p>
+    </div>
+  </div>
+
+  <div class="card mx-auto  my-2" style="width: 900px;">
+    <h4 class="card-header">Graph 1.2: Heat-map of the Spending Efficiency</h4>
+    <div class="card-body">
+      <p>
+        This graph visualizes data from the U.S. Education Department.
+        Every year, almost all the states increase budget for public schools.
+        This graph compares all the states of America and shows how effective
+        they were in increasing the budget and seeing improved math scores by 8th graders from 1992-2017.
+      </p>
+      <p>
+        For each state, the efficiency numbers were generated with this formula: <br>
+        (Avg math score in 2017 - Avg math score in 1992) / (expenditure in 2016 - expenditure in 1992)<br>
+        Note that the dollar amount of 1992 was adjusted for inflation to year 2016.
+      </p>
+      <p>
+        This shows math score increase with respect to budget increase between 1992 and 2017.
+        Finally, before graphing the efficiency numbers,
+        they were scaled between 0 and 1 on the color gradient.
+      </p>
+      <h5>Education Budget Increase Effectiveness in America Between 1992 and 2017.</h5>
+      <div id="p1_div_for_svg">
+      </div>
+      <div id="p1_div_for_legend">
+      </div>
+      <br>
+    </div>
+  </div>
+
+  <div class="card mx-auto  my-2" style="width: 900px;">
+    <h5 class="card-header">Graph 2: Line-Chart Comparison</h5>
+    <div class="card-body">
+
+      <h5 style="margin-left:35px;">Average Total Expenditure vs. Average Grade 8 Exam Scores Between
+        1992 and 2017.</h5>
+
+      <div class="svg-graph-container">
+        <div id="p2_div_for_svg">
+        </div>
+        <div id="p2_div_for_legend">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card mx-auto  my-2" style="width: 900px;">
+    <h5 class="card-header">Graph 3: Bar Chart Comparison</h5>
+    <div class="card-body">
+      <p>
+        The bars of the chart show the expenditure per student by state for 2015.
+        The line graph shows the trend in average math and reading exam scores for eight graders in 2015.
+        For some states, higher expenditure per student was correlated with higher
+        exam scores, but the relationship is not strong. Reading scores tended
+        to be lower than math scores.
+      </p>
+
+      <div class="svg-graph-container">
+        <div id="p3_div_for_svg">
+          <svg id="graph3" width=800 height=400></svg>
+        </div>
+        <div id="p3_div_for_legend">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Code for Graph One
+  var svg_width = 800;
+  var svg_height = 500;
+  var margin = { top: 30, right: 30, bottom: 50, left: 60};
+  var education_data = null;
+  var data_filtered = {};
+  var valid_data = {};
+
+  async function draw_heat_map_graph() {
+
+    d3.select("#p1_div_for_svg")
+      .append("svg")
+      .attr("width", svg_width).attr("height", svg_height)
+      .attr("id", "p1_svg")
+      .append("g").attr("id", "p1_svg_g1");
+
+    var svg = d3.select('#p1_svg_g1');
+
+    // load the state TopoJSON data
+    let states_topo = await d3.json("./us-map-data/us.json");
+    // convert the TopoJSON to GeoJson
+    let states_geo = topojson.feature(states_topo, states_topo.objects.states);
+    // D3 Projection
+    let projection = d3.geoAlbersUsa().fitSize([svg_width, svg_height], states_geo);
+    let path = d3.geoPath().projection(projection);
+
+    var state_name_IDs = await d3.tsv("../us-map-data/us-state-names.tsv");
+
+    svg.selectAll("path")
+      .data(states_geo.features)
+      .enter()
+      .append("path")
+      .attr("class","state")
+      .attr("d", path)
+      .attr("state_id", data => data.id)
+      .attr("state_name", data => get_state_name(data.id, state_name_IDs));
+
+    svg.selectAll("text")
+      .data(states_geo.features)
+      .enter()
+      .append("svg:text")
+      .text(data => get_state_name(data.id, state_name_IDs, short=true))
+      .attr("x", d => path.centroid(d)[0])
+      .attr("y", d => path.centroid(d)[1])
+      .attr("text-anchor","middle")
+      .attr('font-size','13px');
+
+
+    education_data = await d3.csv("./states_all.csv");
+
+    // setup objects for each state.
+    education_data.forEach(item => {
+      data_filtered[clean_name(item['STATE'])] = {name: item['STATE'], cleaned_name: clean_name(item['STATE'])}
+    });
+
+
+
+    education_data.forEach( (item) => {
+      let state = clean_name(item['STATE']);
+      if (Number(item['YEAR']) === 1992) {
+        // adjust the expenditure for inflation, $100 in 1992 -->  $171.07 in 2016.
+        data_filtered[state].expenditure_1992 = Number(item['TOTAL_EXPENDITURE'] * 1.7107);
+        data_filtered[state].math_score_1992 = Number(item['AVG_MATH_8_SCORE']);
+      }
+      if (Number(item['YEAR']) === 2016) {
+        data_filtered[state].expenditure_2016 = Number(item['TOTAL_EXPENDITURE']);
+      }
+      if (Number(item['YEAR']) === 2017) {
+        data_filtered[state].math_score_2016 = Number(item['AVG_MATH_8_SCORE']);
+      }
+
+    });
+
+
+    Object.entries(data_filtered).forEach(([state, state_detail]) => {
+      let invalid_entry = Object.values(state_detail).includes(0) || Object.keys(state_detail).length === 2;
+      if (invalid_entry === false) {
+        let numerator = state_detail.math_score_2016 - state_detail.math_score_1992;
+        let denominator = state_detail.expenditure_2016 - state_detail.expenditure_1992;
+        state_detail.efficiency_score = numerator / denominator;
+        // valid_data.push(state_detail);
+        valid_data[state] = state_detail;
+      }
+    });
+
+    var max_efficiency_score = Math.max(...Object.values(valid_data).map(item => item.efficiency_score));
+
+    Object.entries(valid_data).forEach(([state, state_detail]) => {
+      state_detail.scaled_score = state_detail.efficiency_score / max_efficiency_score
+    });
+
+    const color_scale = d3.scaleSequential(d3.interpolateOranges).domain([0,1]);
+
+    svg.selectAll(".state")
+      .style("fill", data => {
+        let state_name = get_state_name(data.id, state_name_IDs);
+        console.log("data: ", data);
+        console.log("state_name: ", state_name);
+        if(valid_data[state_name] === undefined) {return color_scale(0);}
+        let score = valid_data[state_name].scaled_score;
+        return color_scale(score*20)
+      });
+
+    // DRAW THE LEGEND>>>>
+    svg_width = 800;
+    svg_height = 100;
+    margin = { top: 10, right: 50, bottom: 20, left: 50};
+    var bar_height = 50;
+    var step_size = 5;
+    d3.select("#p1_div_for_legend")
+      .append("svg")
+      .attr("width", svg_width).attr("height", svg_height)
+    // .style("border", "1px solid grey")
+      .append("g").attr("id", "p1_legend_svg_g1");
+
+    svg = d3.select("#p1_legend_svg_g1");
+
+    x_scale = d3.scaleLinear()
+      .domain([0, 1])
+      .range([margin.left, svg_width-margin.right]);
+
+    bottomAxis = d3.axisBottom(x_scale).ticks(20);
+    svg.append("g").attr("class", "x_axis")
+      .attr("transform","translate("+ (0) +","+ (svg_height-margin.bottom) +")")
+      .call(bottomAxis)
+      .selectAll("text")
+      .style("text-anchor", "middle");
+
+    svg.append("g").attr("id", "legend_bars");
+
+    svg = d3.select("#legend_bars");
+
+    for (let i = 0; i <= 1.01 ; i = i + 0.01) {
+      svg.append("rect")
+        .attr("x", x_scale(i))
+        .attr("y", 25)
+        .attr("width", step_size)
+        .attr("height", bar_height)
+        .attr('stroke-width', .5)
+        .attr('stroke', "black")
+        .attr("fill", color_scale(i));
+    }
+
+
+    // Draw Another Graph with just budget.
+
+    svg_width = 800;
+    svg_height = 500;
+
+    d3.select("#p1_div_for_svg_2")
+      .append("svg")
+      .attr("width", svg_width).attr("height", svg_height)
+      .append("g").attr("id", "p1_svg_g1_2");
+
+    svg = d3.select('#p1_svg_g1_2');
+
+    svg.selectAll("path")
+      .data(states_geo.features)
+      .enter()
+      .append("path")
+      .attr("class","state_2")
+      .attr("d", path)
+      .attr("state_id", data => data.id)
+      .attr("state_name", data => get_state_name(data.id, state_name_IDs));
+
+    svg.selectAll("text")
+      .data(states_geo.features)
+      .enter()
+      .append("svg:text")
+      .text(data => get_state_name(data.id, state_name_IDs, short=true))
+      .attr("x", d => path.centroid(d)[0])
+      .attr("y", d => path.centroid(d)[1])
+      .attr("text-anchor","middle")
+      .attr('font-size','13px');
+
+    var max_expenditure_2016 = Math.max(...Object.values(valid_data).map(item => item.expenditure_2016));
+
+    svg.selectAll(".state_2")
+      .style("fill", data => {
+        let state_name = get_state_name(data.id, state_name_IDs);
+        if(valid_data[state_name] === undefined) {return color_scale(0);}
+        let expenditure_2016 = valid_data[state_name].expenditure_2016 / max_expenditure_2016;
+        return color_scale(expenditure_2016*1.2)
+      });
+
+    // DRAW THE LEGEND>>>>
+    svg_width = 800;
+    svg_height = 100;
+    margin = { top: 10, right: 50, bottom: 20, left: 50};
+    bar_height = 50;
+    step_size = 5;
+    d3.select("#p1_div_for_legend_2")
+      .append("svg")
+      .attr("width", svg_width).attr("height", svg_height)
+    // .style("border", "1px solid grey")
+      .append("g").attr("id", "p1_legend_svg_g1_2");
+
+    svg = d3.select("#p1_legend_svg_g1_2");
+
+    x_scale = d3.scaleLinear()
+      .domain([0, 1])
+      .range([margin.left, svg_width-margin.right]);
+
+    bottomAxis = d3.axisBottom(x_scale)
+      .tickFormat(d => d3.format('$0.2s')(d * max_expenditure_2016) )
+      .ticks(20, );
+    svg.append("g").attr("class", "x_axis")
+      .attr("transform","translate("+ (0) +","+ (svg_height-margin.bottom) +")")
+      .call(bottomAxis)
+      .selectAll("text")
+      .style("text-anchor", "middle");
+
+    svg.append("g").attr("id", "legend_bars_2");
+
+    svg = d3.select("#legend_bars_2");
+
+    for (let i = 0; i <= 1.01 ; i = i + 0.01) {
+      svg.append("rect")
+        .attr("x", x_scale(i))
+        .attr("y", 25)
+        .attr("width", step_size)
+        .attr("height", bar_height)
+        .attr('stroke-width', .5)
+        .attr('stroke', "black")
+        .attr("fill", color_scale(i));
+    }
+
+  }
+
+  draw_heat_map_graph();
+
+  clean_name = (name) => {
+    let cleaned_name = name.replace(/[ ]/g, "_");
+    return cleaned_name.toLowerCase().replace(/[ \-,.:'()&#!?]/g, "")
+  };
+
+  get_state_name = (id, state_name_IDs, short=false) => {
+    let temp = state_name_IDs.filter(state => {
+      return Number(state.id) === id;
+    });
+    if (short) return temp[0].code;
+    return clean_name(temp[0].name);
+  };
+
+
+  // Code for Graph Two
+  var educationData;
+  // Extracts Data, filters our invalid data, casts data to correct type
+  d3.csv("states_all.csv").then(function(data) {
+    educationData = data;
+    expenditureArray = [];
+    scoreArray = [];
+    yearArray = [];
+    educationData.forEach(function(d,i) {
+      d['AVG_MATH_8_SCORE'] = Number(d['AVG_MATH_8_SCORE']);
+      d['TOTAL_EXPENDITURE'] = Number(d['TOTAL_EXPENDITURE']);
+      d['ENROLL'] = Number(d['ENROLL']);
+      d['YEAR'] = Number(d['YEAR']);
+      educationData = educationData.filter(d => d['AVG_MATH_8_SCORE'] !== 0
+        && d['TOTAL_EXPENDITURE'] !== 0);
+    });
+
+    // Adds all expenditure and score data into respective arrays for
+    // each valid year of data. Also creates yearArray containing all
+    // valid years of data
+    educationData.forEach(function(d,i) {
+      if (!(d['YEAR'] in expenditureArray)) {
+        expenditureArray[d['YEAR']] = [d['TOTAL_EXPENDITURE']];
+        yearArray.push(d['YEAR']);
+      } else {
+        expenditureArray[d['YEAR']].push(d['TOTAL_EXPENDITURE']);
+      }
+      if (!(d['YEAR'] in scoreArray)) {
+        scoreArray[d['YEAR']] = [d['AVG_MATH_8_SCORE']];
+      } else {
+        scoreArray[d['YEAR']].push(d['AVG_MATH_8_SCORE']);
+      }
+    });
+
+    // Array of average total expenditure for each valid year of data
+    expenditureAverageArray = [];
+    expenditureArray.forEach(function(d,i) {
+      var expenditureTotal = 0;
+      for (let i=0;i<d.length;i++) {
+        expenditureTotal += d[i];
+      }
+      let expenditureAvg = Number((expenditureTotal/d.length).toFixed(1)/1000);
+      expenditureAverageArray.push(expenditureAvg);
+    });
+
+    // Array of average math 8 scores for each valid year of data
+    scoreAverageArray = [];
+    scoreArray.forEach(function(d,i) {
+      var scoreTotal = 0;
+      for (let i=0;i<d.length;i++) {
+        scoreTotal += d[i];
+      }
+      let scoreAvg = Number((scoreTotal/d.length).toFixed(1));
+      scoreAverageArray.push(scoreAvg);
+    });
+
+    // Max and min variables to use for scales
+    const minYear = d3.min(yearArray);
+    const maxYear = d3.max(yearArray);
+    const minExpenditure = d3.min(expenditureAverageArray);
+    const maxExpenditure = d3.max(expenditureAverageArray);
+    const minScore = d3.min(scoreAverageArray);
+    const maxScore = d3.max(scoreAverageArray);
+
+    var svg = d3.select("#p2_div_for_svg")
+      .append("svg")
+      .attr("width","800")
+      .attr("height","650");
+
+    // Linear scales created to translate data into svg
+    yearScale = d3.scaleLinear().domain([minYear-1,maxYear+1]).range([50,770]);
+    expenditureScale = d3.scaleLinear().domain([0,maxExpenditure]).range([600,50]);
+    scoreScale = d3.scaleLinear().domain([0,maxScore]).range([600,50]);
+
+    // Variables for x and y axes
+    var xAxis = d3.axisBottom(yearScale).tickFormat(d3.format("d"));
+    var yLeftAxis = d3.axisLeft(expenditureScale).ticks(20).tickFormat(d3.format("$0.2s"));
+    var yRightAxis = d3.axisRight(scoreScale).ticks(12);
+    var height = 650;
+    var width = 800;
+
+    // Creates the axes
+    svg.append("g")
+      .attr("class" , "x axis")
+      .attr("transform", "translate(0,600)")
+      .call(xAxis);
+
+    svg.append("g")
+      .attr("class", "y left axis")
+      .attr("transform", "translate(50,0)")
+      .style("color", "#F47037")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .call(yLeftAxis);
+
+    svg.append("g")
+      .attr("class", "y right axis")
+      .attr("transform", "translate(770,0)")
+      .style("color","#31CA3A")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .call(yRightAxis);
+
+    // Iterates through expenditure array and populates svg with circles
+    // as well as lines connecting them
+    expenditureAverageArray.forEach(function(d,i) {
+      let circle = svg.append("circle")
+        .attr("cx",yearScale(yearArray[i]))
+        .attr("cy",expenditureScale(expenditureAverageArray[i]))
+        .attr("r","6")
+        .attr("opacity",0.7)
+        .style("fill","#F47037");
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      var line = d3.line()
+        .x((d,i) => yearScale(yearArray[i]))
+        .y((d,i) => expenditureScale(expenditureAverageArray[i]));
+
+      svg.append("path")
+        .datum(expenditureAverageArray)
+        .attr("d",line)
+        .style("stroke-width", "1px")
+        .style("stroke","#F47037")
+        // Color taken from https://htmlcolorcodes.com/color-picker/
+        .style("opacity",0.6)
+        .style("fill","none");
+    });
+
+    // Iterates through expenditure array and populates svg with circles
+    // as well as lines connecting them
+    scoreAverageArray.forEach(function(d,i) {
+      let circle = svg.append("circle")
+        .attr("cx",yearScale(yearArray[i]))
+        .attr("cy",scoreScale(scoreAverageArray[i]))
+        .attr("r","6")
+        .attr("opacity",0.6)
+        .style("fill","#31CA3A");
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      var line = d3.line()
+        .x((d,i) => yearScale(yearArray[i]))
+        .y((d,i) => scoreScale(scoreAverageArray[i]));
+
+      svg.append("path")
+        .datum(scoreAverageArray)
+        .attr("d",line)
+        .style("stroke-width", "1px")
+        .style("stroke","#31CA3A")
+        // Color taken from https://htmlcolorcodes.com/color-picker/
+        .style("opacity",0.6)
+        .style("fill","none");
+    });
+
+    // Add legend and x axis label
+    d3.select("#p2_div_for_legend")
+      .append("h6").text("Years")
+      .style("text-align","center");
+
+    var legend = d3.select("#p2_div_for_legend")
+      .append("svg")
+      .attr("width","800")
+      .attr("height","50");
+
+    legend.append("circle")
+      .attr("r",5)
+      .attr("cx","120")
+      .attr("cy","20")
+      .style("fill", "#F47037")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .style("opacity",0.8);
+
+    legend.append("text")
+      .attr("x","140")
+      .attr("y","25")
+      .style("fill","#F47037")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .text("Average Total Expenditure (Thousands)");
+
+    legend.append("circle")
+      .attr("r",5)
+      .attr("cx","480")
+      .attr("cy","20")
+      .style("fill", "#31CA3A")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .style("opacity",0.8);
+
+    legend.append("text")
+      .attr("x","500")
+      .attr("y","25")
+      .style("fill","#31CA3A")
+      // Color taken from https://htmlcolorcodes.com/color-picker/
+      .text("Average Grade 8 Math Scores");
+
+  });
+
+
+
+  // Code for Graph Three
+  const ABBREV = ["", "AL","AK","AZ","AR","CA","CO","CT","DC","DE","FL","GA","HI","ID","IL",
+    "IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
+    "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
+    "VT","VA","WA","WV","WI","WY", " "];
+
+  parsed = [];
+  d3.csv("states_all.csv").then(function(data) {
+    data.forEach((d,i) => {
+      if (d["YEAR"] == 2015 ) {
+        parsed.push({"year": d["YEAR"],
+          "state": d["STATE"],
+          "expenditure": parseInt(d["TOTAL_EXPENDITURE"])/parseInt(d["ENROLL"]),
+          "read_score": d["AVG_READING_8_SCORE"],
+          "math_score": d["AVG_MATH_8_SCORE"],
+          "abbrev": ABBREV[i+1]});
+      }});
+
+    exp = [];
+    scores = [];
+    maxScore = 0;
+    parsed.forEach(function(d) {
+      exp.push(parseInt(d.expenditure));
+      scores.push(parseInt(d.math_score))
+    });
+    maxExp = d3.max(exp);
+    minScore = d3.min(scores);
+    maxScore = d3.max(scores);
+
+    parsed = parsed.filter(d => d["math_score"] != "");
+    let g3SVG = d3.select("svg#graph3");
+    let width = g3SVG.attr("width");
+    let height = g3SVG.attr("height");
+    let margin = { top: 10, right: 60, bottom: 100, left: 90};
+    let chartWidth = width - margin.left - margin.right;
+    let chartHeight = height - margin.top - margin.bottom;
+
+    // Create scales
+    let xScale = d3.scalePoint().domain(ABBREV).range([0,chartWidth]);
+    let yScaleLeft = d3.scaleLinear().domain([0, (maxExp + 5)]).range([chartHeight, 0]).nice();
+    let yScaleRight = d3.scaleLinear().domain([minScore-40, maxScore+20]).range([chartHeight,0]).nice();
+
+    // Append axes
+    let xAxis = d3.axisBottom().scale(xScale);
+    let yLeftAxis = d3.axisLeft(yScaleLeft);
+    let yRightAxis = d3.axisRight(yScaleRight);
+
+    g3SVG.append("g")
+      .attr("class", "x")
+      .attr("transform","translate("+ (margin.left) +","+ (chartHeight+margin.top) +")")
+      .call(xAxis);
+
+    g3SVG.append("g")
+      .attr("transform","translate("+ margin.left +","+ margin.top +")")
+      .call(yLeftAxis)
+      .style("color", "#F47037");
+
+    g3SVG.append("g")
+      .attr("transform","translate("+ (margin.left+chartWidth) +","+ margin.top +")")
+      .call(yRightAxis)
+      .style("color", "mediumseagreen");;
+
+    // Add axis labels
+    g3SVG.append("text")
+      .attr("class", "labels")
+      .attr("text_anchor", "middle")
+      .attr("x", (chartWidth / 2)+margin.left)
+      .attr("y", chartHeight+50)
+      .text("State")
+      .style("font-size", "14px")
+      .style("font-weight", "bold");
+
+    // Add y-axis label
+    g3SVG.append("text")
+      .attr("class", "labels")
+      .attr("text_anchor", "middle")
+      .attr("x", margin.left)
+      .attr("y", chartHeight)
+      .text("Total Expenditure Per Student")
+      .attr("transform", "translate(-250," + (chartHeight+30) + ") rotate(-90)")
+      .style("font-size", "12px")
+      .style("font-weight", "bold")
+      .style("fill", "#F47037");
+
+    // Add y-axis label
+    g3SVG.append("text")
+      .attr("class", "labels")
+      .attr("text_anchor", "middle")
+      .attr("x", margin.left)
+      .attr("y", chartHeight-200)
+      .text("Avg. Grade 8 Exam Score")
+      .attr("transform", "translate(" + (chartWidth+margin.left+140) + "," + 0 + ") rotate(90)")
+      .style("font-size", "12px")
+      .style("fill", "mediumseagreen")
+      .style("font-weight", "bold");
+
+    // Create rectangles for expenditure bars
+    parsed.forEach(function(d,i){
+      g3SVG.append("rect")
+        .attr("x", (xScale(ABBREV[i+1]) + margin.left - (chartWidth/52)/2))
+        .attr("y", (margin.top + yScaleLeft(d.expenditure)))
+        .attr("width", chartWidth/52)
+        .attr("height", (chartHeight-yScaleLeft(d.expenditure)))
+        .style("fill", "#F47037")
+        .style("stroke", "black");
+
+      // Create data points for test scores
+      g3SVG.append("circle")
+        .attr("cx", (xScale(ABBREV[i]) + margin.left + (chartWidth/52)))
+        .attr("cy", (margin.top + yScaleRight(d.math_score)))
+        .attr("r", 3)
+        .style("fill", "lightgreen")
+      g3SVG.append("circle")
+        .attr("cx", (xScale(ABBREV[i]) + margin.left + (chartWidth/52)))
+        .attr("cy", (margin.top + yScaleRight(d.read_score)))
+        .attr("r", 3)
+        .style("fill", "darkgreen")
+
+      // Connect data points for test scores.
+      var mathLine = d3.line()
+        .x((d,i) => xScale(ABBREV[i]) + margin.left + (chartWidth/52))
+        .y(d => yScaleRight(d.math_score)+ margin.top);
+
+      var readLine = d3.line()
+        .x((d,i) => xScale(ABBREV[i]) + margin.left + (chartWidth/52))
+        .y(d => yScaleRight(d.read_score)+ margin.top);
+
+      g3SVG.append("g")
+        .append("path").attr("class", "path")
+        .datum(parsed)
+        .attr("d",mathLine)
+        .style("fill", "none")
+        .style("stroke", "lightgreen")
+        .style("stroke-width", "2px")
+
+      g3SVG.append("g")
+        .append("path").attr("class", "path")
+        .datum(parsed)
+        .attr("d",readLine)
+        .style("fill", "none")
+        .style("stroke", "darkgreen")
+        .style("stroke-width", "2px");
+    })
+
+    // Create legend for line plots
+    g3SVG.append("circle")
+      .attr("cx", chartWidth-30)
+      .attr("cy", height-30)
+      .attr("r", 4)
+      .style("fill", "lightgreen")
+    g3SVG.append("text")
+      .attr("x", chartWidth-20)
+      .attr("y", height-25)
+      .text("Avg. Grade 8 Math Scores")
+      .style("font-size", "12px");
+
+    g3SVG.append("circle")
+      .attr("cx", chartWidth-30)
+      .attr("cy", height-10)
+      .attr("r", 4)
+      .style("fill", "darkgreen")
+    g3SVG.append("text")
+      .attr("x", chartWidth-20)
+      .attr("y", height-5)
+      .text("Avg. Grade 8 Reading Scores")
+      .style("font-size", "12px");
+  });
+</script>
+
+</body>
+
+</html>
