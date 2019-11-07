@@ -1,4 +1,4 @@
-# Description of the Data
+## Description of the Data
 We acquired the ​dataset​ from Kaggle, a popular site that contains many datasets. We selected a dataset that contains U.S. Education data. Some of the columns of this dataset include data such as on state total and instructional expenditure, average test scores in each state, and enrollment numbers in each state during the years 1992 through 2017. Dataset: ​https://www.kaggle.com/noriuk/us-education-datasets-unification-project
 
 To summarize, the variables that we have used in our visualization include: - State name
