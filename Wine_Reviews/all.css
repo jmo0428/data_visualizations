@@ -1,0 +1,148 @@
+body {
+  font-family: Palatino;
+}
+.wineBottle {
+  margin-bottom: 15px;
+  height: 150px;
+}
+
+#p1_div_for_svg {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.firstShelf {
+  display: flex;
+  background-image: url("shelf.jpg");
+  padding: 20px 0 0 0;
+  background-size: 40%;
+}
+
+.secondShelf {
+  display: flex;
+  background-image: url("shelf.jpg");
+  padding: 20px 0 0 0;
+  background-size: 40%;
+}
+
+.thirdShelf {
+  display: flex;
+  background-image: url("shelf.jpg");
+  padding: 20px 0 0 0;
+  background-size: 40%;
+}
+
+figcaption {
+  margin-left: 35px;
+  margin-bottom: 20px;
+}
+
+.button {
+  background: none;
+  width: 50px;
+  border-radius: 12px;
+  font-size: 14px;
+  border: none;
+  padding: 3px;
+  font-weight: 400;
+}
+
+.button:visited, .button:focus {
+  text-decoration: none;
+  outline: none;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fefefe;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #888;
+  width: 30%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  -webkit-animation-name: animatetop;
+  -webkit-animation-duration: 0.4s;
+  animation-name: animatetop;
+  animation-duration: 0.4s;
+  color:#A778DE;
+}
+
+@-webkit-keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+@keyframes animatetop {
+  from {top:-300px; opacity:0}
+  to {top:0; opacity:1}
+}
+
+.close {
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.modal-header {
+  padding: 2px 16px;
+  font-size: 20px;
+  background-color: #A778DE;
+  color: white;
+}
+
+span.close {
+  padding-right: -.5rem;
+  margin-right: -.5rem;
+}
+
+.modal-body {padding: 2px 16px;}
+
+.modal-footer {
+  background-color: #A778DE;
+  color: white;
+}
+
+#wine_name {
+  margin: 0 auto 0 10px;
+}
+
+#wine_price {
+  margin: 0 auto;
+}
+
+.modalWine {
+  display: block;
+  margin: 0 auto;
+}
+
+span {
+  margin-right: 60px;
+}
+
+input {
+  color: #EA1717;
+}
+
+.graphText {
+  width: 50%;
+  display: block;
+  margin: 0 auto 50px auto;
+  color: #A94F3B;
+  text-align: center;
+}
+
+.button {
+  position: absolute;
+  transform: translate(0,-270%);
+  color: #A778DE;
+  font-size: 20px;
+  text-shadow: 1px 1px 1px white;
+}

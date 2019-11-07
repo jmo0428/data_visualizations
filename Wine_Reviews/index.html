@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- Used bootstrap for some minimal styling-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link href="all.css" rel="stylesheet" type="text/css" />
+  <title>Project 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="https://d3js.org/topojson.v2.min.js"></script>
+  <style media="screen">
+
+
+  #p1_div_for_svg, #p2_div_for_svg, #p3_div_for_svg {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .gridlines line {
+    stroke: #bbb;
+  }
+  .gridlines .domain {
+    stroke: none;
+  }
+  div.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 4px;
+    width: 120px;
+    height: 30px;
+    font: 12px sans-serif;
+    background: #f6fbfc;
+    border: 1px solid grey;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  div.tooltip1 {
+      position: absolute;
+      text-align: center;
+      padding: 4px;
+      width: 85px;
+      height: 50px;
+      font: 12px sans-serif;
+      background: #f6fbfc;
+      border: 1px solid grey;
+      border-radius: 3px;
+      pointer-events: none;
+    }
+  .outline {
+    stroke:black;
+    stroke-width: 1px;
+    fill: none;
+  }
+  .text{
+    font-size: 10px;
+    font-family: sans-serif;
+  }
+  </style>
+</head>
+
+
+
+<body style="background-color: #979797;">
+<div class="container">
+  <div class="card mx-auto  my-2" style="width: 960px;">
+    <h4 class="card-header">INFO 3300 - Project 2</h4>
+    <div class="card-body">
+      <p>Project by:</p>
+      <ul>
+        <li>Joe Mo, (jjm492)</li>
+        <li>Xiaoxu Guo (xg256)</li>
+        <li>Andrea Ruggiero (alr282)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card mx-auto  my-2" style="width:960px;">
+    <h4 class="card-header" style="background-color:#cccccc;">Graph 1: Average Varietal Ratings Per Country</h4>
+    <div class="card-body">
+
+      <div id="p2_div_for_svg">
+        <svg id="histo" height = "700" width="1100">
+        </svg>
+      </div>
+      <div id="p2_legend">
+      </div>
+    </div>
+  </div>
+
+  <div class="card mx-auto  my-2" style="width: 960px;">
+    <h4 class="card-header">Graph 2: Average Wine Rating Per State</h4>
+    <div class="card-body">
+    <div id="p2_div_for_svg">
+      <svg id="choropleth" width="800" height="700"></svg>
+    </div>
+    <div id="p1_div_for_legend_2">
+      <svg id="colorLegend" height="100" width="600"></svg>
+    </div>
+    <br/>
+  </div>
+
+
+    <br/>
+  </div>
+
+<div class="card mx-auto  my-2" style="width:960px;">
+    <h4 class="card-header">Graph 3: Wine Rating versus Price</h4>
+    <div class="card-body">
+      <p>Mouseover for the specific wine name!</p>
+      <div id="p2_div_for_svg">
+        <svg id="scatterplot" height="1000" width="600" style="background: #fff; margin-top:50px" ></svg>
+      </div>
+      <div class="p1_div_for_legend_3">
+      </div>
+      <br/>
+    </div>
+</div>
+
+  <div class="card mx-auto  my-2" style="width: 960px;">
+    <h4 class="card-header">Graph 4: Click Any Number to Open a Random Bottle With That Rating!</h4>
+    <div class="card-body">
+      <div id="p1_div_for_svg">
+        <div class="firstShelf">
+        <figure>
+          <img id="first" class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <!-- Idea for modal element came from :https://www.w3schools.com/howto/howto_css_modals.asp -->
+            <input id="myBtn" class="button eighty" type="button" value="80">
+            <div id="myModal" class="modal">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <span class="close">&times;</span>
+                  <h2 id ="wine_name"></h2>
+                </div>
+                <div class="modal-body">
+                  <img class="modalWine" src="wine.png" alt="Wine Bottle"/>
+                </div>
+                <div class="modal-footer">
+                  <h3 id="wine_price"></h3>
+                </div>
+              </div>
+            </div>
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button eightyone" type="button" value="81">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="82">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="83">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="84">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="85">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="86">
+          </figcaption>
+        </figure>
+      </div>
+      <div class="secondShelf">
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="87">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="88">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="89">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="90">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="91">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="92">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="93">
+          </figcaption>
+        </figure>
+        </div>
+        <div class="thirdShelf">
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="94">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="95">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="96">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="97">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="98">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="99">
+          </figcaption>
+        </figure>
+
+        <figure>
+          <img class="wineBottle" src= "wine.png" alt="Wine Bottle"/>
+          <figcaption>
+            <input class="button" type="button" value="100">
+          </figcaption>
+        </figure>
+      </div>
+      </div>
+      <div id="p1_div_for_legend_1">
+      </div>
+      <br/>
+    </div>
+  </div>
+
+
+
+
+<script>
+
+  // Code for graph 1
+  const requestData = async () => {
+    let Data = await d3.csv("../datasets/wine_data1.csv")
+    // Find title, points, price
+    Data.forEach(function(d,i) {
+      d['points'] = Number(d['points']);
+      d['price'] = Number(d['price']);
+    });
+
+    wineData = Data.filter(d => d['points'] !== 0 && d['price'] !== 0);
+    var pointsToWine = {};
+    wineData.forEach(function(d,i) {
+      if (!(d['points'] in pointsToWine)) {
+        pointsToWine[d['points']] = [[d['price'],d['title']]];
+      } else {
+        pointsToWine[d['points']].push([d['price'],d['title']]);
+      }
+    });
+    var ratings = [];
+    wineData.forEach(function(d,i) {
+        ratings.push(d['points']);
+    });
+    const minRating = d3.min(ratings);
+    const maxRating = d3.max(ratings);
+
+    var modal = document.getElementById('myModal');
+
+    var span = document.getElementsByClassName("close")[0];
+
+    $(".button").on('click', function() {
+      modal.style.display = "block";
+      let rating = this.value;
+      let randomWine = Math.floor(Math.random() * pointsToWine[rating].length);
+      let winePrice = pointsToWine[rating][randomWine][0];
+      let wineName = pointsToWine[rating][randomWine][1];
+
+      d3.select("#wine_name")
+        .text(wineName);
+
+      d3.select("#wine_price")
+        .text("Price: $" + winePrice);
+    });
+
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    }
+
+
+        // Start of second graph
+    var topTenCountries = {};
+    var topFiveVariety = {};
+    wineData.forEach(function(d,i) {
+      if (!(d['country'] in topTenCountries)) {
+        topTenCountries[d['country']] = 1;
+      } else {
+        topTenCountries[d['country']] += 1;
+      }
+
+      if (!(d['variety'] in topFiveVariety)) {
+        topFiveVariety[d['variety']] = 1;
+      } else {
+        topFiveVariety[d['variety']] += 1;
+      }
+    });
+    var countries = Object.keys(topTenCountries).map(function(key) {
+      return [key, topTenCountries[key]];
+    })
+    countries.sort(function(first,second) {
+      return second[1] - first[1];
+    });
+    topCountries = [];
+    for (let i=0;i<=9;i++) {
+      topCountries.push(countries[i][0]);
+    }
+
+    var variety = Object.keys(topFiveVariety).map(function(key) {
+      return [key, topFiveVariety[key]];
+    });
+    variety.sort(function(first,second) {
+      return second[1] - first[1];
+    });
+    topVariety = [];
+    topVariety.push(' ');
+    for (let i=0;i<=4;i++) {
+      topVariety.push(variety[i][0]);
+    }
+    topCountriesArr = topCountries;
+    topVarietyArr = topVariety;
+    topVarietyArr.push(' ');
+    topCountries = new Set(topCountries);
+    topVariety = new Set(topVariety);
+    var mainData = [];
+    var us = {};
+    var italy = {};
+    var france  = {};
+    var australia = {};
+    var spain = {};
+    var argentina = {};
+    var austria = {};
+    var germany = {};
+    var portugal = {};
+    var chile = {};
+    wineData.forEach(function(d,i) {
+      if (d['country'] === 'US' && topVariety.has(d['variety']) && !(d['variety'] in us)) {
+        us[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'US' && d['variety'] in us) {
+        us[d['variety']][0] += d['points'];
+        us[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Italy' && topVariety.has(d['variety']) && !(d['variety'] in italy)) {
+        italy[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Italy' && d['variety'] in italy) {
+        italy[d['variety']][0] += d['points'];
+        italy[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'France' && topVariety.has(d['variety']) && !(d['variety'] in france)) {
+        france[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'France' && d['variety'] in france) {
+        france[d['variety']][0] += d['points'];
+        france[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Australia' && topVariety.has(d['variety']) && !(d['variety'] in australia)) {
+        australia[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Australia' && d['variety'] in australia) {
+        australia[d['variety']][0] += d['points'];
+        australia[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Spain' && topVariety.has(d['variety']) && !(d['variety'] in spain)) {
+        spain[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Spain' && d['variety'] in spain) {
+        spain[d['variety']][0] += d['points'];
+        spain[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Argentina' && topVariety.has(d['variety']) && !(d['variety'] in argentina)) {
+        argentina[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Argentina' && d['variety'] in argentina) {
+        argentina[d['variety']][0] += d['points'];
+        argentina[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Austria' && topVariety.has(d['variety']) && !(d['variety'] in austria)) {
+        austria[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Austria' && d['variety'] in austria) {
+        austria[d['variety']][0] += d['points'];
+        austria[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Germany' && topVariety.has(d['variety']) && !(d['variety'] in germany)) {
+        germany[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Germany' && d['variety'] in germany) {
+        germany[d['variety']][0] += d['points'];
+        germany[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Portugal' && topVariety.has(d['variety']) && !(d['variety'] in portugal)) {
+        portugal[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Portugal' && d['variety'] in portugal) {
+        portugal[d['variety']][0] += d['points'];
+        portugal[d['variety']][1] += 1;
+      }
+
+      if (d['country'] === 'Chile' && topVariety.has(d['variety']) && !(d['variety'] in chile)) {
+        chile[d['variety']] = [d['points'], 1];
+      } else if (d['country'] === 'Chile' && d['variety'] in chile) {
+        chile[d['variety']][0] += d['points'];
+        chile[d['variety']][1] += 1;
+      }
+
+    });
+
+    for (var key in us) {
+      us[key] = us[key][0] / us[key][1];
+    }
+
+    for (var key in italy) {
+      italy[key] = italy[key][0] / italy[key][1];
+    }
+
+    for (var key in france) {
+      france[key] = france[key][0] / france[key][1];
+    }
+
+    for (var key in australia) {
+      australia[key] = australia[key][0] / australia[key][1];
+    }
+
+    for (var key in spain) {
+      spain[key] = spain[key][0] / spain[key][1];
+    }
+
+    for (var key in argentina) {
+      argentina[key] = argentina[key][0] / argentina[key][1];
+    }
+
+    for (var key in austria) {
+      austria[key] = austria[key][0] / austria[key][1];
+    }
+
+    for (var key in germany) {
+      germany[key] = germany[key][0] / germany[key][1];
+    }
+
+    for (var key in portugal) {
+      portugal[key] = portugal[key][0] / portugal[key][1];
+    }
+
+    for (var key in chile) {
+      chile[key] = chile[key][0] / chile[key][1];
+    }
+
+    // Pinot Noir
+    var v1 = [];
+    v1.push(us['Pinot Noir']);
+    v1.push(italy['Pinot Noir']);
+    v1.push(france['Pinot Noir']);
+    v1.push(australia['Pinot Noir']);
+    v1.push(spain['Pinot Noir']);
+    v1.push(argentina['Pinot Noir']);
+    v1.push(austria['Pinot Noir']);
+    v1.push(portugal['Pinot Noir']);
+    v1.push(chile['Pinot Noir']);
+
+    // Chardonnay
+    var v2 = [];
+    v2.push(us['Chardonnay']);
+    v2.push(italy['Chardonnay']);
+    v2.push(france['Chardonnay']);
+    v2.push(australia['Chardonnay']);
+    v2.push(spain['Chardonnay']);
+    v2.push(argentina['Chardonnay']);
+    v2.push(austria['Chardonnay']);
+    v2.push(portugal['Chardonnay']);
+    v2.push(chile['Chardonnay']);
+
+    // Cabernet Sauvignon
+    var v3 = [];
+    v3.push(us['Cabernet Sauvignon']);
+    v3.push(italy['Cabernet Sauvignon']);
+    v3.push(france['Cabernet Sauvignon']);
+    v3.push(australia['Cabernet Sauvignon']);
+    v3.push(spain['Cabernet Sauvignon']);
+    v3.push(argentina['Cabernet Sauvignon']);
+    v3.push(austria['Cabernet Sauvignon']);
+    // v3.push(germany['Cabernet Sauvignon']);
+    v3.push(portugal['Cabernet Sauvignon']);
+    v3.push(chile['Cabernet Sauvignon']);
+
+    // Red Blen
+    var v4 = [];
+    v4.push(us['Red Blend']);
+    v4.push(italy['Red Blend']);
+    v4.push(france['Red Blend']);
+    v4.push(australia['Red Blend']);
+    v4.push(spain['Red Blend']);
+    v4.push(argentina['Red Blend']);
+    v4.push(austria['Red Blend']);
+    // v4.push(germany['Red Blend']);
+    v4.push(portugal['Red Blend']);
+    v4.push(chile['Red Blend']);
+
+    // Bordeaux+AC0-style Red Blend
+    var v5 = [];
+    v5.push(us['Bordeaux+AC0-style Red Blend']);
+    v5.push(italy['Bordeaux+AC0-style Red Blend']);
+    v5.push(france['Bordeaux+AC0-style Red Blend']);
+    v5.push(australia['Bordeaux+AC0-style Red Blend']);
+    v5.push(spain['Bordeaux+AC0-style Red Blend']);
+    v5.push(argentina['Bordeaux+AC0-style Red Blend']);
+    v5.push(austria['Bordeaux+AC0-style Red Blend']);
+    // v5.push(germany['Bordeaux+AC0-style Red Blend']);
+    v5.push(portugal['Bordeaux+AC0-style Red Blend']);
+    v5.push(chile['Bordeaux+AC0-style Red Blend']);
+
+    let bordeaux = topVarietyArr[5];
+    bordeaux = bordeaux.slice(0,8) + bordeaux.slice(12);
+    topVarietyArr[5] = bordeaux;
+
+
+    const wholeMap = d3.select("p2_div_for_svg");
+    const svg2 = d3.select("#histo");
+    const svg2Width = svg2.attr("width");
+    const svg2Height = svg2.attr("height");
+    const margin = {top:10, right:10, bottom:10, left: 10};
+    const svgMapWidth = svg2Width - margin.left - margin.right;
+    const svgMapHeight = svg2Height - margin.top - margin.bottom;
+    const svgMap = svg2.append("g")
+      .attr("transform", "translate("+margin.left+","+margin.top+")");
+
+    var xAxisScale = d3.scaleOrdinal().domain(topVarietyArr).range([50,200,350,500,650,800,950]);
+    var yAxisScale = d3.scaleLinear().domain([70,100]).range([svg2Height,100]);
+    var xAxis = d3.axisBottom(xAxisScale);
+    var yAxis = d3.axisLeft(yAxisScale);
+
+    var countryScale = d3.scaleOrdinal()
+      .range(['#EA5F5F','#EAA45F','#EAEA5F','#5FEAA4',
+    '#685FEA','#AD5FEA','#EA5FE6','#4305F6','#5C3439']);
+
+    svgMap.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0,600)")
+      .style("font-size", "12px")
+      .call(xAxis);
+
+    svgMap.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(50,-100)")
+      .style("font-size", "12px")
+      .call(yAxis);
+
+    var tooltip = d3.select("body")
+                    .append("div")
+                    .style("position", "absolute")
+                    .style("text-align", "center")
+                    .style("padding","4px")
+                    .style("width","50px")
+                    .style("height","30px")
+                    .style("background","#f6fbfc")
+                    .style("opacity",0)
+                    .style("border","2px solid grey")
+                    .style("border-radius","3px")
+                    .style("pointer-events","none")
+                    .style("font-weight", 600);
+
+    var v1Start = 160;
+    v1.forEach(function(d,i) {
+        let line = svgMap.append("line")
+          .attr("country", String(topCountriesArr[i]))
+          .attr("x1",v1Start)
+          .attr("y1",yAxisScale(v1[i])-100)
+          .attr("x2",v1Start)
+          .attr("y2",svgMapHeight-80)
+          .attr("stroke-width",10)
+          .attr("stroke",countryScale(d))
+          .attr("class", "country");
+        v1Start += 10;
+
+        line.on("mouseover", function() {
+          tooltip.transition()
+            .duration(500)
+          tooltip.style("left",d3.event.pageX + 10 + "px")
+          tooltip.style("top", d3.event.pageY - 20 + "px");
+          tooltip.html("")
+          tooltip.append("div").text(Math.round(100*v1[i])/100)
+          tooltip.style("opacity", "1");
+        });
+
+        line.on("mouseout", function(){
+          return tooltip.transition().duration(200)
+          .style("opacity", "0");
+        });
+    });
+
+    var v2Start = 310;
+    v2.forEach(function(d,i) {
+      let line = svgMap.append("line")
+        .attr("country", String(topCountriesArr[i]))
+        .attr("x1",v2Start)
+        .attr("y1",yAxisScale(v2[i])-100)
+        .attr("x2",v2Start)
+        .attr("y2",svgMapHeight-80)
+        .attr("stroke-width",10)
+        .attr("stroke",countryScale(d))
+        .attr("class", "country");
+      v2Start += 10;
+
+      line.on("mouseover", function() {
+        tooltip.transition()
+          .duration(500)
+        tooltip.style("left",d3.event.pageX + 10 + "px")
+        tooltip.style("top", d3.event.pageY - 20 + "px");
+        tooltip.html("")
+        tooltip.append("div").text(Math.round(100*v2[i])/100)
+        tooltip.style("opacity", "1");
+      });
+
+      line.on("mouseout", function(){
+        return tooltip.transition().duration(200)
+        .style("opacity", "0");
+      });
+    });
+
+    var v3Start = 460;
+    v3.forEach(function(d,i) {
+      let line = svgMap.append("line")
+        .attr("country", String(topCountriesArr[i]))
+        .attr("x1",v3Start)
+        .attr("y1",yAxisScale(v3[i])-100)
+        .attr("x2",v3Start)
+        .attr("y2",svgMapHeight-80)
+        .attr("stroke-width",10)
+        .attr("stroke",countryScale(d))
+        .attr("class", "country");
+      v3Start += 10;
+
+      line.on("mouseover", function() {
+        tooltip.transition()
+          .duration(500)
+        tooltip.style("left",d3.event.pageX + 10 + "px")
+        tooltip.style("top", d3.event.pageY - 20 + "px");
+        tooltip.html("")
+        tooltip.append("div").text(Math.round(100*v3[i])/100)
+        tooltip.style("opacity", "1");
+      });
+
+      line.on("mouseout", function(){
+        return tooltip.transition().duration(200)
+        .style("opacity", "0");
+      });
+    });
+
+    var v4Start = 610;
+    v4.forEach(function(d,i) {
+      let line = svgMap.append("line")
+        .attr("x1",v4Start)
+        .attr("y1",yAxisScale(v4[i])-100)
+        .attr("x2",v4Start)
+        .attr("y2",svgMapHeight-80)
+        .attr("stroke-width",10)
+        .attr("stroke",countryScale(d))
+        .attr("country", String(topCountriesArr[i]))
+        .attr("class", "country");
+      v4Start += 10;
+
+      line.on("mouseover", function() {
+        tooltip.transition()
+          .duration(500)
+        tooltip.style("left",d3.event.pageX + 10 + "px")
+        tooltip.style("top", d3.event.pageY - 20 + "px");
+        tooltip.html("")
+        tooltip.append("div").text(Math.round(100*v4[i])/100)
+        tooltip.style("opacity", "1");
+      });
+
+      line.on("mouseout", function(){
+        return tooltip.transition().duration(200)
+        .style("opacity", "0");
+      });
+    });
+
+    var v5Start = 760;
+    v5.forEach(function(d,i) {
+      let line = svgMap.append("line")
+        .attr("country", String(topCountriesArr[i]))
+        .attr("class", "country")
+        .attr("x1",v5Start)
+        .attr("y1", yAxisScale(v5[i])-100)
+        .attr("x2",v5Start)
+        .attr("y2",svgMapHeight-80)
+        .attr("stroke-width",10)
+        .attr("stroke",countryScale(d));
+      v5Start += 10;
+
+      line.on("mouseover", function() {
+        tooltip.transition()
+          .duration(500)
+        tooltip.style("left",d3.event.pageX + 10 + "px")
+        tooltip.style("top", d3.event.pageY - 20 + "px");
+        tooltip.html("")
+        tooltip.append("div").text(Math.round(100*v5[i])/100)
+        tooltip.style("opacity", "1");
+      });
+
+      line.on("mouseout", function(){
+        return tooltip.transition().duration(200)
+        .style("opacity", "0");
+      });
+    });
+
+    const legend = d3.select("#p2_legend");
+
+    svgMap.append("text")
+        .attr("transform","translate(" + (svgMapWidth/2) + " ," +(svgMapHeight-20) + ")")
+        .style("text-anchor", "middle")
+        .style("text-decoration","underline")
+        .style("font-size","16px")
+        .style("font-weight", 600)
+        .text("Countries");
+
+    svgMap.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -300)
+        .attr("y", 10)
+        .style("text-anchor", "middle")
+        .style("text-decoration","underline")
+        .style("font-size","16px")
+        .style("font-weight", 600)
+        .text("Average Rating");
+
+    countryScale.range().forEach(function(d,i) {
+      legend.append("span").text(String(topCountriesArr[i]))
+        .style("color", countryScale(d))
+        .style("vertical-align", "middle")
+        .on("mouseover", function() {
+          svgMap.selectAll(".country").each(function() {
+            let line = d3.select(this);
+            if (line.attr("country") === String(topCountriesArr[i])) {
+              line.attr("stroke-width", 10);
+            } else {
+              line.attr("stroke-width", 0);
+            }
+          });
+        });
+    });
+
+    d3.selectAll("span").on("mouseout", function() {
+      svgMap.selectAll(".country").attr("stroke-width",10);
+    });
+
+
+    //Code for graph 2
+    //Referenced Notes 1 for March 11 from the class repository when creating this choropleth
+    const usa = await d3.json("../datasets/us.json");
+
+    let svg = d3.select("#choropleth");
+    let width = svg.attr("width");
+    let height = svg.attr("height");
+    let marginC = { top: 20, right: 20, bottom: 20, left: 20};
+    let mapWidth = width - marginC.left - marginC.right;
+    let mapHeight = height - marginC.top - marginC.bottom;
+    let map = svg.append("g")
+                .attr("transform","translate("+marginC.left+","+marginC.top+")");
+
+    //Pick out topographic features and build their d3 helpers
+    var states = topojson.feature(usa, usa.objects.states);
+    var statesMesh = topojson.mesh(usa, usa.objects.states);
+    var projection = d3.geoAlbersUsa().fitSize([mapWidth, mapHeight], states);
+    var path = d3.geoPath().projection(projection);
+    //Draw states + outlines
+    map.selectAll("path").data(states.features)
+      .enter()
+      .append("path")
+      .attr("class","state")
+      .attr("d", path)
+      .attr("ident", d => d.id);
+
+    map.append("path")
+      .datum(statesMesh)
+      .attr("class", "outline")
+      .attr("d", path);
+
+    wineData = wineData.filter(d => d['country'] == "US");
+    wineData = wineData.filter(d => d['province'] !== "America")
+    wineData = wineData.filter(d => d['province'] !== "Washington-Oregon")
+
+    const stateIDs = await d3.tsv("../datasets/us-state-names.tsv");
+    //Use d3.nest to group by points, and calculate mean of each state's ratings
+    statePointAverage = d3.nest()
+                          .key(function(d) {return d['province']})
+                          .rollup(function(d) {
+                            return d3.mean(d, function(g) {return g['points']})
+                          }).entries(wineData);
+
+    //Winery data
+    const wineries = await d3.csv("../datasets/united_states1.csv");
+    //console.log(wineries);
+    let wineriesPerState = {};
+
+    wineries.forEach(function(d,i) {
+      let state = wineries[i]['State'];
+      if (!(state in wineriesPerState)) {
+        wineriesPerState[state] = 1;
+        } else {
+          wineriesPerState[state] += 1;
+        }
+      });
+      console.log(wineriesPerState);
+
+    let stateCounts = {};
+    let idToState = {};
+    let codeToState = {};
+    //let wineryCounts = {};
+
+    stateIDs.forEach ( row => {
+      stateCounts[row.name] = 0;
+      codeToState[row.id] = row.code;
+      idToState[row.id] = row.name;
+    });
+    console.log(idToState);
+    statePointAverage.forEach(function(d, i) {
+      stateCounts[d['key']] = d['value'];
+    });
+
+    // wineriesPerState.forEach ( function(d,i) {
+    //   wineryCounts[d['key']] = d['value'];
+    // })
+    // console.log(wineryCounts);
+
+    //Create d3 color scale for average points
+
+    let minVal = d3.min(stateCounts);
+    let maxVal = d3.max(stateCounts);
+
+    var newArr = [];
+    for (var key in stateCounts) {
+      if (stateCounts[key] != 0) {
+        newArr.push(stateCounts[key]);
+      }
+    }
+
+    const minMax = d3.extent(stateIDs, d => stateCounts[d.name]);
+    const colorScale = d3.scaleOrdinal()
+                          .range(["#FFF8F7","#FF8673","#C55141"]);
+
+    map.selectAll(".state")
+        .style("fill", d => colorScale(stateCounts[ idToState[d.id] ]));
+
+    //Mouseover aspect
+    var roundNumber = d3.format(",.0f");
+    var tooltip1 = d3.select("body").append("div")
+                      .attr("id", "tooltip1")
+                      .attr("class", "tooltip1")
+                      .style("opacity", 0);
+    var toolWidth = parseFloat(tooltip1.style("width"));
+    var toolHeight = parseFloat(tooltip1.style("height"));
+
+    d3.selectAll(".state").on("mousemove", mouseOnPlot);
+    d3.selectAll(".state").on("mouseout", mouseLeavesPlot);
+
+    function mouseOnPlot() {
+      // Move the tooltip
+      tooltip1.style("left", event.pageX - (toolWidth/2.0)+"px");
+      tooltip1.style("top", event.pageY - toolHeight - 24 +"px");
+
+      // Clear whatever is there
+      tooltip1.html("");
+
+      // Give the tooltip a state and points label
+      let state = d3.select(this);
+      tooltip1.append("div").text(idToState[state.attr("ident")]);
+      tooltip1.append("div").text(roundNumber(stateCounts[idToState[state.attr("ident")] ])+" points");
+      tooltip1.append("div").text(wineriesPerState[codeToState[state.attr("ident")]]+" wineries");
+      // Show the tooltip!
+      tooltip1.style("opacity",1);
+    }
+
+    function mouseLeavesPlot() {
+      tooltip1.style("opacity",0);
+    }
+
+
+    //Creating legend: credit goes to Prof Rz, whose code this legend is based on
+    const legendC = d3.select("#colorLegend");
+    const legendCWidth = legendC.attr("width");
+    const legendCHeight = legendC.attr("height");
+    const barHeight = 60;
+    const stepSize = 4;
+    const pixelScale = d3.scaleLinear().domain([0,legendCWidth-40]).range([minMax[0]-1,minMax[1]+1]);
+    const barScale = d3.scaleLinear().domain([minMax[0]-1,minMax[1]+1]).range([0,legendCWidth-40]);
+    const barAxis = d3.axisBottom(barScale);
+    legendC.append("g")
+      .attr("class", "colorbar axis")
+      .attr("transform","translate("+(20)+","+(barHeight+5)+")")
+      .call(barAxis);
+    // Draw rects of color down the bar
+    let bar = legendC.append("g").attr("transform","translate("+(20)+","+(0)+")")
+    for (let i=0; i<legendCWidth-40; i=i+stepSize) {
+      bar.append("rect")
+        .attr("x", i)
+        .attr("y", 0)
+        .attr("width", stepSize)
+        .attr("height",barHeight)
+        .style("fill", colorScale( pixelScale(i) )); // pixels => countData => color
+    }
+    // Put lines in to mark actual min and max of our data
+    bar.append("line").attr("stroke","white").attr("stroke-width",3).attr("x1", barScale(minMax[0])).attr("x2", barScale(minMax[0])).attr("y1", 0).attr("y1", barHeight+4);
+    bar.append("line").attr("stroke","white").attr("stroke-width",3).attr("x1", barScale(minMax[1])).attr("x2", barScale(minMax[1])).attr("y1", 0).attr("y1", barHeight+4);
+
+
+
+
+
+
+
+    //Code for graph 3
+    let svgS = d3.select("svg#scatterplot");
+    let widthS = svgS.attr("width");
+    let heightS = svgS.attr("height");
+    let marginS = { top: 10, right: 10, bottom: 50, left: 50};
+    let chartWidth = widthS - marginS.left - marginS.right;
+    let chartHeight = heightS - marginS.top - marginS.bottom;
+
+    data = Data.filter ( d => d['province'] === "New York" && d['price'] != 0);
+    const pointsMin = d3.min(data, d => d['points']);
+    const pointsMax = d3.max(data, d => d['points']);
+    const pointsScale = d3.scaleLinear()
+                    .domain([pointsMin, pointsMax])
+                    .range([0, chartWidth]);//x axis
+
+    const priceMin = d3.min(data, d => d['price']);
+    const priceMax = d3.max(data, d => d['price']);
+    const priceScale = d3.scaleLog()
+                    .domain([priceMin, priceMax])
+                    .range([chartHeight,0]);//y axis
+
+
+    let leftAxis = d3.axisLeft().scale(priceScale).ticks(8, d3.format("$.01s"));
+    let yAxisLayer = svgS.append("g").attr("class","y axis")
+                  .attr("transform","translate("+ (marginS.left-10) +","+ marginS.top +")")
+    yAxisLayer.call(leftAxis);
+
+    let bottomAxis = d3.axisBottom(pointsScale).ticks(10);
+    let xAxisLayer = svgS.append("g").attr("class", "x axis")
+                  .attr("transform","translate("+ marginS.left +","+ (marginS.top + chartHeight + 10) +")")
+    xAxisLayer.call(bottomAxis);
+
+    let leftGridlines = d3.axisLeft(priceScale).tickSize(-chartWidth-10).tickFormat("");
+    let yGridlineLayer = svgS.append("g").attr("class", "x gridlines")
+      .attr("transform","translate("+ (marginS.left-10) +","+ marginS.top +")")
+    yGridlineLayer.call(leftGridlines);
+
+    let bottomGridlines = d3.axisBottom(pointsScale).tickSize(-chartHeight-10).tickFormat("");
+    let xGridlineLayer = svgS.append("g").attr("class", "y gridlines")
+      .attr("transform","translate("+ marginS.left +","+ (marginS.top + chartHeight + 10) +")")
+    xGridlineLayer.call(bottomGridlines);
+
+    let scatterWrapper = svgS.append("g");
+    let scatter = scatterWrapper.append("g")
+      .attr("transform","translate("+marginS.left+","+marginS.top+")")
+      .attr("id", "chart-region");
+
+    svgS.append("text")
+        .attr("transform", "translate(" + chartWidth + " ," + (chartHeight + 50) + ")")
+        .style("text-anchor", "middle")
+        .text("Points");
+
+    svgS.append("text")
+      .attr("transform", "translate(" + 20 + " ," + 50 + ")")
+      .style("text-anchor", "middle")
+      .text("Price");
+
+    const varietyScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+    data.forEach( (d, i) => {
+      let points = pointsScale(d['points']+1);
+      let price = priceScale(d['price']);
+      let variety = varietyScale(d['variety']);
+
+
+      let circle = scatter.append("circle")
+            .attr("cx", points)
+            .attr("cy", price)
+            .attr("r", 5)
+            .attr("opacity", 0.5)
+            .style("fill", variety)
+            .attr("variety", d["variety"])
+            .attr("title",d['title'])
+            .attr("price", d['price'])
+            .attr("points",d['points'])
+            .attr("active",false);
+
+      var tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("text-align", "center")
+        .style("padding","4px")
+        .style("width","120px")
+        .style("height","120px")
+        .style("background","#f6fbfc")
+        .style("opacity",0)
+        .style("border","2px solid grey")
+        .style("border-radius","3px")
+        .style("pointer-events","none")
+
+
+      circle.on("mousemove", function(){
+        tooltip.transition()
+              .duration(500)
+        tooltip.style("left",d3.event.pageX + 10 + "px")
+        tooltip.style("top", d3.event.pageY - 20 + "px");
+        tooltip.html("")
+        let wine = d3.select(this)
+        tooltip.append("div").attr("class","text").text("Wine Name: " + wine.attr("title"))
+        tooltip.append("div").attr("class","text").text("Wine Variety: " + wine.attr("variety"))
+        tooltip.append("div").attr("class","text").text("Wine Price: " + wine.attr("price"))
+        tooltip.append("div").attr("class","text").text("Wine Points: " + wine.attr("points"))
+        tooltip.style("opacity", "1")
+      })
+      circle.on("mouseout", function(){
+        return tooltip.transition().duration(200)
+        .style("opacity", "0");
+      });
+  });
+  d3.selectAll("circle").each(function(){
+    let thiscircle = d3.select(this)
+    thiscircle.active = true
+      thiscircle.on("click",function(){
+        if (thiscircle.active == true){
+          thiscircle.active = false
+
+        scatter.selectAll("circle").each(function() {
+          let circle = d3.select(this);
+          if (circle.attr("variety") === thiscircle.attr("variety")) {
+            circle.attr("opacity", 1);
+          }
+          else {
+            circle.attr("opacity", 0);
+          }
+        })
+      }else{
+          thiscircle.active = true
+          scatter.selectAll("circle").attr("opacity",1);
+      }
+    })
+  })
+
+
+  var topvarieties = ["Cabernet Sauvignon","Chardonnay","Merlot","Syrah","Pinot Noir"];
+  topvarieties.forEach(function(d,i) {
+    d3.select(".p1_div_for_legend_3")
+      .append("span")
+      .attr("id",d)
+      .text(d + " ")
+      .style("color", varietyScale(d))
+      .on("mouseover", function() {
+        scatter.selectAll("circle").each(function() {
+          let circle = d3.select(this);
+          if (circle.attr("variety") === d) {
+            circle.attr("opacity", 1);
+          }
+          else {
+            circle.attr("opacity", 0);
+          }
+        })
+      })
+      .on("mouseout",function(){
+        scatter.selectAll("circle")
+              .attr("opacity",1);
+        })
+  });
+
+
+  var chartZoom = d3.zoom()
+    .on("zoom", chartZoomed);
+
+  svgS.call(chartZoom);
+  function chartZoomed(){
+    let transform = d3.event.transform;
+    leftAxis.scale(transform.rescaleY(priceScale))
+    bottomAxis.scale(transform.rescaleX(pointsScale))
+    leftGridlines.scale(transform.rescaleY(priceScale))
+    bottomGridlines.scale(transform.rescaleX(pointsScale))
+
+    var newX = d3.event.transform.rescaleX(pointsScale)
+    var newY = d3.event.transform.rescaleY(priceScale)
+
+    yAxisLayer.call(leftAxis);
+    xAxisLayer.call(bottomAxis);
+    yGridlineLayer.call(leftGridlines);
+    xGridlineLayer.call(bottomGridlines);
+
+    scatter.selectAll("circle").each(function(){
+      let thiscircle = d3.select(this);
+      thiscircle.attr("cx",newX(thiscircle.attr("points")))
+                .attr("cy",newY(thiscircle.attr("price")))
+    });
+
+  }
+
+    svgS.append("defs").append("clipPath")
+                  .attr("id","chartclip")
+                  .append("rect").attr("x",marginS.left)
+                                 .attr("y",marginS.top)
+                                 .attr("width",chartWidth)
+                                 .attr("height",chartHeight);
+
+    scatterWrapper.attr("clip-path","url(#chartclip)");
+
+  };
+
+  requestData();
+
+
+</script>
+
+</body>
+</html>
