@@ -1,1 +1,1 @@
-# Some cool visualizations I've done.
+# Visualizations implemented utilizing D3.js
